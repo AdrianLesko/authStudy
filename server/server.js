@@ -30,6 +30,6 @@ async function run () {
       console.log('db connected and server running..')
     } )
   } catch (err) {
-    console.error('there was error connecting to db')
+    console.error('there was error connecting to db: ', err)
   }
 }

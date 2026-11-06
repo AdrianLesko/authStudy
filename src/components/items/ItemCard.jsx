@@ -1,4 +1,5 @@
 function ItemCard({ item, canDelete, onDelete }) {
+  void canDelete
   return (
     <li className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-4">
@@ -25,15 +26,15 @@ function ItemCard({ item, canDelete, onDelete }) {
           </p>
         </div>
 
-        {canDelete && (
+
           <button
             type="button"
-            onClick={() => onDelete(item.id)}
+            onClick={() => onDelete(item._id)}
             className="shrink-0 rounded-md border border-red-200 px-3 py-1 text-sm text-red-600 hover:bg-red-50"
           >
             Zmazať
           </button>
-        )}
+      
       </div>
     </li>
   )

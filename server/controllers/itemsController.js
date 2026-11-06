@@ -18,6 +18,7 @@ const getItems = async ( req, res, next ) => {
 const createItem = async ( req, res, next) => {
   try { 
     const newItem = req.body
+    
     const item = await Item.create(newItem)
     res.status(201).json(item)
 

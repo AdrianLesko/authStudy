@@ -1,4 +1,4 @@
-import { useState, useState} from 'react'
+import { useState, useEffect} from 'react'
 import { api_url} from './config.js'
 
 
@@ -13,17 +13,16 @@ function App() {
   const [items, setItems] = useState([]) // [{ id, title, description, isPublic, owner, createdAt }]
 
   useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const response = await fetch(api_url + '/items')
-        if (!response.ok) {
-          throw new Error('Invalid response fetching items.')
-        }
-        const data = response.json()
-        setItems(data)
-      } catch (err) {console.error(err)}
+    async function loadItems () {
+      const response = await fetch(api_url + '/items')
+      if (!response.ok) {
+        console.error('failed fetching data, !response.ok: ', res)
+        setItems([])
+      }
+      const itemsData = await response.json()
+      setItems(itemsData)
     }
-    fetchItems()
+    loadItems()
   }, [])
 
   // Pri načítaní stránky: zisti, či je používateľ prihlásený, a načítaj itemy.
@@ -94,53 +93,32 @@ function App() {
   }
 
   async function handleAddItem({ title, description, isPublic }) {
-    
+
     const response = await fetch(api_url + '/items', {
-      'method': 'POST',
-      'Content-Type': 'application/json',
-      'body': {title, description, isPublic}
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({title, description, isPublic})
     })
 
     if (!response.ok) {
       throw new Error('Failed creating item')
     }
-
     const item = await response.json()
-
     setItems(prev => [item, ...prev])
-
-    // --- SIMULÁCIA (zmaž po napojení backendu) ---
-    const newItem = {
-      id: crypto.randomUUID(),
-      title,
-      description,
-      isPublic,
-      owner: user.email,
-      createdAt: new Date().toISOString(),
-    }
-    setItems((prev) => [newItem, ...prev])
-    // --- KONIEC SIMULÁCIE ---
   }
 
   async function handleDeleteItem(id) {
-    // const res = await fetch(`${API_URL}/api/items/${id}`, {
-    //   method: 'DELETE',
-    //   // TODO: auth (cookie alebo token)
-    // })
-    // if (!res.ok) {
-    //   const data = await res.json()
-    //   alert(data.message || 'Zmazanie itemu zlyhalo.')
-    //   return
-    // }
-
-    setItems((prev) => prev.filter((item) => item.id !== id))
+    console.log(id)
+    const response = await fetch(api_url + '/items/' + id, {
+      method: 'DELETE'
+    })
+    if (!response.ok) {
+      const data = await response.json()
+      alert(data.message || 'zmazanie itemu zlyhalo')
+      return
+    }
+    setItems((prev) => prev.filter((item) => item._id !== id))
   }
-
-  // --- SIMULÁCIA (zmaž po napojení backendu) ---
-  // Neprihlásený vidí iba verejné itemy, prihlásený aj svoje súkromné.
-  // Toto filtrovanie musí v reálnej appke robiť backend (GET /api/items).
-  const visibleItems = items.filter((item) => item.isPublic || item.owner === user?.email)
-  // --- KONIEC SIMULÁCIE ---
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -151,7 +129,7 @@ function App() {
           <AddItemForm user={user} onAddItem={handleAddItem} onLoginClick={() => setIsAuthModalOpen(true)} />
         </aside>
 
-        <ItemList items={visibleItems} user={user} onDeleteItem={handleDeleteItem} />
+        <ItemList items={items} user={user} onDeleteItem={handleDeleteItem} />
       </main>
 
       <AuthModal
