@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* Zabráni scrollovaniu stránky pod otvoreným modalom. */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
