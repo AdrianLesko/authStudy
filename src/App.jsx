@@ -14,6 +14,10 @@ function App() {
 
   useEffect(() => {
     async function loadItems () {
+      const savedAuth = localStorage.getItem('authData')
+      if (savedAuth) {
+        setUser(JSON.parse(savedAuth))
+      }
       const response = await fetch(api_url + '/items')
       if (!response.ok) {
         console.error('failed fetching data, !response.ok: ', response)
@@ -46,49 +50,43 @@ function App() {
   // }, [])
 
   async function handleRegister({ name, email, password }) {
-    // const res = await fetch(`${API_URL}/api/auth/register`, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   // TODO: auth (cookie alebo token)
-    //   body: JSON.stringify({ name, email, password }),
-    // })
-    // const data = await res.json()
-    // if (!res.ok) throw new Error(data.message || 'Registrácia zlyhala.')
-    // setUser(data.user)
+    const response = await fetch(api_url + '/auth/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name, email, password})
+    })
 
-    // --- SIMULÁCIA (zmaž po napojení backendu) ---
-    void password // heslo sa v simulácii nepoužíva (iba kvôli ESLintu)
-    setUser({ name, email })
-    // --- KONIEC SIMULÁCIE ---
+    if (!response.ok) {
+      alert('registracia sa nepodarila')
+      return
+    }
 
+    const data = await response.json()
+    void data
+   
     setIsAuthModalOpen(false)
   }
 
   async function handleLogin({ email, password }) {
-    // const res = await fetch(`${API_URL}/api/auth/login`, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   // TODO: auth (cookie alebo token)
-    //   body: JSON.stringify({ email, password }),
-    // })
-    // const data = await res.json()
-    // if (!res.ok) throw new Error(data.message || 'Prihlásenie zlyhalo.')
-    // setUser(data.user)
+    const response = await fetch(api_url + '/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email, password})
+    })
 
-    // --- SIMULÁCIA (zmaž po napojení backendu) ---
-    void password // heslo sa v simulácii nepoužíva (iba kvôli ESLintu)
-    setUser({ name: email.split('@')[0], email })
-    // --- KONIEC SIMULÁCIE ---
+    if (!response.ok) {
+      alert('failed to login')
+      return
+    }
 
+    const data = await response.json()
+    setUser({...data.user, token: data.token})
+    localStorage.setItem('authData', JSON.stringify({...data.user, token: data.token}))
     setIsAuthModalOpen(false)
   }
 
   async function handleLogout() {
-    // await fetch(`${API_URL}/api/auth/logout`, {
-    //   method: 'POST',
-    //   // TODO: auth (cookie alebo token)
-    // })
-
+    localStorage.removeItem('authData')
     setUser(null)
   }
 
@@ -96,7 +94,10 @@ function App() {
 
     const response = await fetch(api_url + '/items', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${user.token}`
+      },
       body: JSON.stringify({title, description, isPublic})
     })
 
@@ -110,7 +111,10 @@ function App() {
   async function handleDeleteItem(id) {
     console.log(id)
     const response = await fetch(api_url + '/items/' + id, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${user.token}`
+      }
     })
     if (!response.ok) {
       const data = await response.json()
