@@ -29,7 +29,7 @@ function ItemCard({ item, canDelete, onDelete }) {
 
           <button
             type="button"
-            onClick={() => onDelete(item._id)}
+            onClick={() => onDelete(item.id)}
             className="shrink-0 rounded-md border border-red-200 px-3 py-1 text-sm text-red-600 hover:bg-red-50"
           >
             Zmazať

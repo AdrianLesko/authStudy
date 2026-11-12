@@ -13,11 +13,18 @@ const itemSchema = new mongoose.Schema({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: false,
   }, 
   createdAt: {
     type: String,
     default: () => new Date().toISOString()
+  }
+})
+
+itemSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    ret.id = ret._id.toString()
+    delete ret._id
+    delete ret.__v
   }
 })
 

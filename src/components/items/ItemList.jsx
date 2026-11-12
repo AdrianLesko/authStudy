@@ -13,7 +13,7 @@ function ItemList({ items, user, onDeleteItem }) {
         <ul className="flex flex-col gap-3">
           {items.map((item) => (
             <ItemCard
-              key={item._id}
+              key={item.id}
               item={item}
               // Iba vizuálna kontrola, skutočnú autorizáciu musí urobiť backend.
               canDelete={Boolean(user) && item.owner === user.email}

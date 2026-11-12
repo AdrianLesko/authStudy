@@ -3,6 +3,7 @@ import cors from 'cors'
 import 'dotenv/config'
 import mongoose from 'mongoose'
 import itemsRouter from './routes/itemsRouter.js'
+import usersRouter from './routes/authRouter.js'
 import { handleErrorFallback, handleFinalError } from './middleware/error.middleware.js'
 
 const port = process.env.PORT 
@@ -15,6 +16,7 @@ app.use(cors(corsConfig))
 app.use(express.json())
 
 app.use('/api/items', itemsRouter)
+app.use('/api/users/', usersRouter)
 
 
 app.use(handleErrorFallback)

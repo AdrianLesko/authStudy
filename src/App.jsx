@@ -16,7 +16,7 @@ function App() {
     async function loadItems () {
       const response = await fetch(api_url + '/items')
       if (!response.ok) {
-        console.error('failed fetching data, !response.ok: ', res)
+        console.error('failed fetching data, !response.ok: ', response)
         setItems([])
       }
       const itemsData = await response.json()
@@ -117,7 +117,7 @@ function App() {
       alert(data.message || 'zmazanie itemu zlyhalo')
       return
     }
-    setItems((prev) => prev.filter((item) => item._id !== id))
+    setItems((prev) => prev.filter((item) => item.id !== id))
   }
 
   return (
