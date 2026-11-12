@@ -16,7 +16,7 @@ app.use(cors(corsConfig))
 app.use(express.json())
 
 app.use('/api/items', itemsRouter)
-app.use('/api/users/', usersRouter)
+app.use('/api/auth/', usersRouter)
 
 
 app.use(handleErrorFallback)
