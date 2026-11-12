@@ -12,6 +12,11 @@ export function handleFinalError (err, req, res, next) {
     err.message = `Invalid ID in url Request: ${err.value}`
   }
 
+  if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError'){
+    err.status = 401
+    err.message = 'JWT token is expired or invalid'
+  }
+
   const status = err.status || 500 
   console.log(err)
 

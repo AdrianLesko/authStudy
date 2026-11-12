@@ -1,5 +1,6 @@
 import Item from '../models/Item.js'
 
+
 const getItems = async ( req, res, next ) => {
     try { 
       const items = await Item.find({})
@@ -19,7 +20,7 @@ const createItem = async ( req, res, next) => {
   try { 
     const newItem = req.body
     
-    const item = await Item.create(newItem)
+    const item = await Item.create({...newItem, owner: req.user.id})
     res.status(201).json(item)
 
   } catch (err){
@@ -40,6 +41,12 @@ const updateItem = async ( req, res, next ) => {
       throw err
     }
 
+    if (req.user.id !== item.owner.toString()) {
+      const err = new Error('Do not have permission')
+      err.status = 403
+      throw err
+    }
+
     Object.assign(item, newItem)
     await item.save()
 
@@ -53,13 +60,21 @@ const updateItem = async ( req, res, next ) => {
 const deleteItem = async ( req, res, next ) => {
   try {
     const id = req.params.id
-    const item = await Item.findByIdAndDelete(id)
+    const item = await Item.findById(id)
 
     if (!id || !item) {
       const err = new Error('Item not found or invalid id')
       err.status = 400
       throw err
     } 
+
+    if (req.user.id !== item.owner?.toString()){
+      const err = new Error('Do not have permission')
+      err.status = 403
+      throw err
+    }
+
+    await item.deleteOne()
     res.status(200).send()
   } catch (err) {
     next(err)
